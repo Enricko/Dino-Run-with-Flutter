@@ -4,11 +4,14 @@ import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flame/flame.dart';
 import 'package:flutter_game_firebase/Components/Enemy/Enemy.dart';
+import 'package:flutter_game_firebase/Components/Settings/Audio_Manager.dart';
+import 'package:flutter_game_firebase/Components/Settings/player_data.dart';
 
 import '../main.dart';
 
 
-enum DinoAnimationStates{
+/// This enum represents the animation states of [Dino].
+enum CharAnimationStates {
   idle,
   run,
   kick,
@@ -16,61 +19,68 @@ enum DinoAnimationStates{
   sprint,
 }
 
-class Character extends SpriteAnimationGroupComponent<DinoAnimationStates>
+// This represents the Char character of this game.
+class Char extends SpriteAnimationGroupComponent<CharAnimationStates>
     with CollisionCallbacks, HasGameRef<MyGame> {
-
-  double playerScale = 3.0;
-
+  // A map of all the animation states and their corresponding animations.
   static final _animationMap = {
-    DinoAnimationStates.idle: SpriteAnimationData.sequenced(
+    CharAnimationStates.idle: SpriteAnimationData.sequenced(
       amount: 4,
       stepTime: 0.1,
       textureSize: Vector2.all(24),
     ),
-    DinoAnimationStates.run: SpriteAnimationData.sequenced(
+    CharAnimationStates.run: SpriteAnimationData.sequenced(
       amount: 6,
       stepTime: 0.1,
       textureSize: Vector2.all(24),
       texturePosition: Vector2((4) * 24, 0),
     ),
-    DinoAnimationStates.kick: SpriteAnimationData.sequenced(
+    CharAnimationStates.kick: SpriteAnimationData.sequenced(
       amount: 4,
       stepTime: 0.1,
       textureSize: Vector2.all(24),
       texturePosition: Vector2((4 + 6) * 24, 0),
     ),
-    DinoAnimationStates.hit: SpriteAnimationData.sequenced(
+    CharAnimationStates.hit: SpriteAnimationData.sequenced(
       amount: 3,
       stepTime: 0.1,
       textureSize: Vector2.all(24),
       texturePosition: Vector2((4 + 6 + 4) * 24, 0),
     ),
-    DinoAnimationStates.sprint: SpriteAnimationData.sequenced(
+    CharAnimationStates.sprint: SpriteAnimationData.sequenced(
       amount: 7,
       stepTime: 0.1,
       textureSize: Vector2.all(24),
       texturePosition: Vector2((4 + 6 + 4 + 3) * 24, 0),
     ),
   };
+
+  // The max distance from top of the screen beyond which
+  // Char should never go. Basically the screen height - ground height
   double yMax = 0.0;
+
+  // Char's current speed along y-axis.
   double speedY = 0.0;
 
+  // Controlls how long the hit animations will be played.
   final Timer _hitTimer = Timer(1);
 
   static const double gravity = 800;
 
-  static bool isHit = false;
+  final PlayerData playerData;
 
-  Character(Image image)
+  bool isHit = false;
+
+  Char(Image image, this.playerData)
       : super.fromFrameData(image, _animationMap);
-      
+
   @override
   void onMount() {
     // First reset all the important properties, because onMount()
     // will be called even while restarting the game.
     _reset();
 
-    // Add a hitbox for dino.
+    // Add a hitbox for Char.
     add(
       RectangleHitbox.relative(
         Vector2(0.5, 0.7),
@@ -82,20 +92,11 @@ class Character extends SpriteAnimationGroupComponent<DinoAnimationStates>
 
     /// Set the callback for [_hitTimer].
     _hitTimer.onTick = () {
-      current = DinoAnimationStates.run;
+      current = CharAnimationStates.run;
       isHit = false;
     };
 
     super.onMount();
-  }
-
-  void hit() {
-    isHit = true;
-    
-    // AudioManager.instance.playSfx('hurt7.wav');
-    current = DinoAnimationStates.hit;
-    _hitTimer.start();
-    // playerData.lives -= 1;
   }
 
   @override
@@ -106,13 +107,13 @@ class Character extends SpriteAnimationGroupComponent<DinoAnimationStates>
     // d = s0 + s * t
     y += speedY * dt;
 
-    // /// This code makes sure that dino never goes beyond [yMax].
+    /// This code makes sure that Char never goes beyond [yMax].
     if (isOnGround) {
       y = yMax;
       speedY = 0.0;
-      if ((current != DinoAnimationStates.hit) &&
-          (current != DinoAnimationStates.run)) {
-        current = DinoAnimationStates.run;
+      if ((current != CharAnimationStates.hit) &&
+          (current != CharAnimationStates.run)) {
+        current = CharAnimationStates.run;
       }
     }
 
@@ -120,9 +121,10 @@ class Character extends SpriteAnimationGroupComponent<DinoAnimationStates>
     super.update(dt);
   }
 
-  // @override
+  // Gets called when Char collides with other Collidables.
+  @override
   void onCollision(Set<Vector2> intersectionPoints, PositionComponent other) {
-    // Call hit only if other component is an Enemy and dino
+    // Call hit only if other component is an Enemy and Char
     // is not already in hit state.
     if ((other is Enemy) && (!isHit)) {
       hit();
@@ -130,26 +132,40 @@ class Character extends SpriteAnimationGroupComponent<DinoAnimationStates>
     super.onCollision(intersectionPoints, other);
   }
 
-  // Returns true if dino is on ground.
+  // Returns true if Char is on ground.
   bool get isOnGround => (y >= yMax);
 
+  // Makes the Char jump.
   void jump() {
-    // Jump only if dino is on ground.
+    // Jump only if Char is on ground.
     if (isOnGround) {
       speedY = -500;
-      current = DinoAnimationStates.run;
-      // AudioManager.instance.playSfx('jump14.wav');
+      current = CharAnimationStates.idle;
+      AudioManager.instance.playSfx('jump14.wav');
     }
   }
 
+  // This method changes the animation state to
+  /// [DinoAnimationStates.hit], plays the hit sound
+  /// effect and reduces the player life by 1.
+  void hit() {
+    isHit = true;
+    AudioManager.instance.playSfx('hurt7.wav');
+    current = CharAnimationStates.hit;
+    _hitTimer.start();
+    playerData.lives -= 1;
+  }
+
+  // This method reset some of the important properties
+  // of this component back to normal.
   void _reset() {
     if (isMounted) {
       removeFromParent();
     }
     anchor = Anchor.bottomLeft;
     position = Vector2(32, gameRef.size.y - 100);
-    size = Vector2.all(24) * playerScale;
-    current = DinoAnimationStates.run;
+    size = Vector2.all(24) * 3;
+    current = CharAnimationStates.run;
     isHit = false;
     speedY = 0.0;
   }
