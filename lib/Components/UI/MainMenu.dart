@@ -1,10 +1,12 @@
 import 'dart:ui';
 
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_game_firebase/Components/Firebase/FirebaseAuthService.dart';
 import 'package:flutter_game_firebase/Components/Settings/player_data.dart';
 import 'package:flutter_game_firebase/Components/UI/Hud.dart';
+import 'package:flutter_game_firebase/Components/UI/LeaderBoard.dart';
 import 'package:flutter_game_firebase/Components/UI/SettingsMenu.dart';
 import 'package:flutter_game_firebase/main.dart';
 import 'package:provider/provider.dart';
@@ -26,8 +28,11 @@ class MainMenu extends StatefulWidget {
 
 class _MainMenuState extends State<MainMenu> {
   bool onHoverPlay = false;
+  
   @override
   Widget build(BuildContext context) {
+    
+  // print(FirebaseAuth.instance.currentUser);
     return ChangeNotifierProvider.value(
       value: widget.gameRef.playerData,
       child: Center(
@@ -87,7 +92,7 @@ class _MainMenuState extends State<MainMenu> {
                         width: 150,
                         height: 150,
                         child: TextButton(
-                          onPressed: (){
+                          onPressed: () {
                             widget.gameRef.startGamePlay();
                             widget.gameRef.overlays.remove(MainMenu.id);
                             widget.gameRef.overlays.add(Hud.id);
@@ -110,7 +115,7 @@ class _MainMenuState extends State<MainMenu> {
                       //   },
                       //   child: Text('Login Gmail')
                       // ),
-                      FirebaseAuth.instance.currentUser == null ? Container() :
+                      FirebaseAuth.instance.currentUser != null ? Container() :
                       Container(
                         margin: EdgeInsets.only(top: 15),
                         child: Column(
@@ -135,6 +140,18 @@ class _MainMenuState extends State<MainMenu> {
                               child: GestureDetector(
                                 onTap: ()async{
                                   await FirebaseAuthService().signInWithGoogle();
+
+                                  final snapshot = await FirebaseDatabase.instance
+                                  .ref()
+                                  .child('LeaderBoard')
+                                  .child(FirebaseAuth.instance.currentUser!.uid)
+                                  .get();
+                                  final Map<String,dynamic> data = snapshot.value as Map<String,dynamic>; 
+                                  
+                                  widget.gameRef.playerData.highScore = data['highScore'];
+
+                                  widget.gameRef.overlays.remove(MainMenu.id);
+                                  widget.gameRef.overlays.add(MainMenu.id);
                                 },
                                 child: Image.asset(
                                   'assets/images/Google.svg.png',
@@ -160,6 +177,21 @@ class _MainMenuState extends State<MainMenu> {
                     onPressed: (){
                       widget.gameRef.overlays.remove(MainMenu.id);
                       widget.gameRef.overlays.add(SettingsMenu.id);
+                    },
+                  ),
+                ),
+                Positioned(
+                  left: 0,
+                  top: 10,
+                  child: TextButton(
+                    child: Icon(
+                      Icons.emoji_events_sharp,
+                      color: Colors.white70,
+                      size: 50,
+                    ),
+                    onPressed: (){
+                      widget.gameRef.overlays.remove(MainMenu.id);
+                      widget.gameRef.overlays.add(LeaderBoard.id);
                     },
                   ),
                 )

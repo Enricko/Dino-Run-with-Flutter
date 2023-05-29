@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flame/game.dart';
 import 'package:flame/input.dart';
 import 'package:flutter/foundation.dart';
@@ -13,6 +14,7 @@ import 'package:flutter_game_firebase/Components/Settings/player_data.dart';
 import 'package:flutter_game_firebase/Components/Settings/settings.dart';
 import 'package:flutter_game_firebase/Components/UI/GameOverMenus.dart';
 import 'package:flutter_game_firebase/Components/UI/Hud.dart';
+import 'package:flutter_game_firebase/Components/UI/LeaderBoard.dart';
 import 'package:flutter_game_firebase/Components/UI/MainMenu.dart';
 import 'package:flutter_game_firebase/Components/UI/PauseMenu.dart';
 import 'package:flutter_game_firebase/Components/UI/SettingsMenu.dart';
@@ -28,15 +30,7 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await initHive();
-  // User? user;
-  //     FirebaseAuth auth = FirebaseAuth.instance;
-  //     // The `GoogleAuthProvider` can only be 
-  //     // used while running on the web
-  //     GoogleAuthProvider authProvider = GoogleAuthProvider();
-  // // final UserCredential userCredential =
-  // //       await auth.signInwi(authProvider);
-  // //       user = userCredential.user;
-  // print(auth.currentUser);
+
   runApp(
     GameWidget(
       game: MyGame(),
@@ -47,6 +41,7 @@ Future<void> main() async {
         Hud.id: (_, MyGame gameRef) => Hud(gameRef,),
         GameOverMenus.id: (_, MyGame gameRef) => GameOverMenus(gameRef),
         SettingsMenu.id: (_, MyGame gameRef) => SettingsMenu(gameRef),
+        LeaderBoard.id: (_, MyGame gameRef) => LeaderBoard(gameRef),
         'Ground': (context, game) {
           double width = MediaQuery.of(context).size.width;
           return Positioned(
@@ -128,20 +123,11 @@ class MyGame extends FlameGame with TapDetector,KeyboardEvents, HasCollisionDete
 
     /// Initilize [AudioManager].
     await AudioManager.instance.init(_audioAssets, settings);
-
-    // Start playing background music. Internally takes care
-    // of checking user settings.
-
-    // Cache all the images.
     await images.loadAll(_imageAssets);
 
-    // Set a fixed viewport to avoid manually scaling
-    // and handling different screen sizes.
-    // camera.viewport = FixedResolutionViewport(Vector2(870, 661));
-
-    /// Create a [ParallaxComponent] and add it to game.
     add(MyParallaxComponent());
     overlays.add('Ground');
+    
 
     return super.onLoad();
   }
@@ -149,6 +135,7 @@ class MyGame extends FlameGame with TapDetector,KeyboardEvents, HasCollisionDete
   /// This method add the already created [Dino]
   /// and [EnemyManager] to this game.
   void startGamePlay() {
+
     _char = Char(images.fromCache('char/DinoSprites - vita.png'), playerData);
     _enemyManager = EnemyManager();
 
@@ -178,7 +165,7 @@ class MyGame extends FlameGame with TapDetector,KeyboardEvents, HasCollisionDete
 
   // This method gets called for each tick/frame of the game.
   @override
-  void update(double dt) {
+  Future<void> update(double dt) async {
     // dbRef = FirebaseDatabase.instance.ref().child('medias');
     if (kIsWeb) {
       window.addEventListener('focus', onFocus);
@@ -186,6 +173,7 @@ class MyGame extends FlameGame with TapDetector,KeyboardEvents, HasCollisionDete
     } else {
       WidgetsBinding.instance.addObserver(this);
     }
+    
     // If number of lives is 0 or less, game is over.
     if (playerData.lives <= 0) {
       // print('object');

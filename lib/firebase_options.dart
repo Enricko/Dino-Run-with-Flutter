@@ -49,6 +49,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '893336919605',
     projectId: 'dino-run-flutter',
     authDomain: 'dino-run-flutter.firebaseapp.com',
+    databaseURL: 'https://dino-run-flutter-default-rtdb.firebaseio.com',
     storageBucket: 'dino-run-flutter.appspot.com',
     measurementId: 'G-DJPFQ2N119',
   );
@@ -58,6 +59,7 @@ class DefaultFirebaseOptions {
     appId: '1:893336919605:android:7d9e186a4f29152eb19b7c',
     messagingSenderId: '893336919605',
     projectId: 'dino-run-flutter',
+    databaseURL: 'https://dino-run-flutter-default-rtdb.firebaseio.com',
     storageBucket: 'dino-run-flutter.appspot.com',
   );
 
@@ -66,7 +68,9 @@ class DefaultFirebaseOptions {
     appId: '1:893336919605:ios:e2fbe0fdf4bedb4eb19b7c',
     messagingSenderId: '893336919605',
     projectId: 'dino-run-flutter',
+    databaseURL: 'https://dino-run-flutter-default-rtdb.firebaseio.com',
     storageBucket: 'dino-run-flutter.appspot.com',
+    iosClientId: '893336919605-5krr4bj6iefk98l4o8h1rbde5aj154o6.apps.googleusercontent.com',
     iosBundleId: 'com.example.flutterGameFirebase',
   );
 
@@ -75,7 +79,9 @@ class DefaultFirebaseOptions {
     appId: '1:893336919605:ios:e2fbe0fdf4bedb4eb19b7c',
     messagingSenderId: '893336919605',
     projectId: 'dino-run-flutter',
+    databaseURL: 'https://dino-run-flutter-default-rtdb.firebaseio.com',
     storageBucket: 'dino-run-flutter.appspot.com',
+    iosClientId: '893336919605-5krr4bj6iefk98l4o8h1rbde5aj154o6.apps.googleusercontent.com',
     iosBundleId: 'com.example.flutterGameFirebase',
   );
 }

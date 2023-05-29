@@ -1,5 +1,9 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
+
+import "package:firebase_database/firebase_database.dart";
+
 
 part 'player_data.g.dart';
 
@@ -27,6 +31,22 @@ class PlayerData extends ChangeNotifier with HiveObjectMixin {
 
     if (highScore < _currentScore) {
       highScore = _currentScore;
+      
+      if(FirebaseAuth.instance.currentUser != null){
+        try {
+          FirebaseDatabase.instance
+          .ref()
+          .child('LeaderBoard')
+          .child(FirebaseAuth.instance.currentUser!.uid)
+          .set({
+            'highScore':highScore,
+            'name': FirebaseAuth.instance.currentUser!.displayName,
+            'image':FirebaseAuth.instance.currentUser!.photoURL,
+          });
+        } catch (e) {
+          print(e);
+        }
+      }
     }
 
     notifyListeners();

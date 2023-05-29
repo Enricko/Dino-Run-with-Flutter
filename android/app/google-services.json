@@ -1,6 +1,7 @@
 {
   "project_info": {
     "project_number": "893336919605",
+    "firebase_url": "https://dino-run-flutter-default-rtdb.firebaseio.com",
     "project_id": "dino-run-flutter",
     "storage_bucket": "dino-run-flutter.appspot.com"
   },
@@ -12,7 +13,12 @@
           "package_name": "com.example.flutter_game_firebase"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "893336919605-36m7dmmbastllul60hseqnt66n19p7v0.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyDeCt_QsSlDBBDOOXb9foNaW1E5aeWzgCo"
@@ -20,7 +26,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "893336919605-36m7dmmbastllul60hseqnt66n19p7v0.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "893336919605-5krr4bj6iefk98l4o8h1rbde5aj154o6.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.flutterGameFirebase"
+              }
+            }
+          ]
         }
       }
     }
