@@ -164,7 +164,7 @@ class Char extends SpriteAnimationGroupComponent<CharAnimationStates>
     }
     anchor = Anchor.bottomLeft;
     position = Vector2(32, gameRef.size.y - 100);
-    size = Vector2.all(24) * 3;
+    size = Vector2.all(24) * 3; 
     current = CharAnimationStates.run;
     isHit = false;
     speedY = 0.0;

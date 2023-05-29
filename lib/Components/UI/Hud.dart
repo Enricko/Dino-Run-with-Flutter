@@ -28,19 +28,44 @@ class Hud extends StatelessWidget {
               selector: (_, playerData) => playerData.lives,
               builder: (_, lives, __) {
                 return Row(
-                  children: List.generate(5, (index) {
-                    if (index < lives) {
-                      return const Icon(
-                        Icons.favorite,
-                        color: Colors.red,
-                      );
-                    } else {
-                      return const Icon(
-                        Icons.favorite_border,
-                        color: Colors.red,
-                      );
-                    }
-                  }),
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: List.generate(5, (index) {
+                        if (index < lives) {
+                          return const Icon(
+                            Icons.favorite,
+                            color: Colors.red,
+                          );
+                        } else {
+                          return const Icon(
+                            Icons.favorite_border,
+                            color: Colors.red,
+                          );
+                        }
+                      }),
+                    ),
+                    gameRef.playerData.scoreUntilHeal >= 10 ?
+                    RichText(
+                      text: TextSpan(
+                        children: [
+                          TextSpan(
+                            text: "+1",
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.white70
+                            )
+                          ),
+                          WidgetSpan(
+                            child: Icon(
+                              Icons.favorite,
+                              color: Colors.red,
+                            ),
+                          )
+                        ]
+                      ),
+                    ):Container(),
+                  ],
                 );
               },
             ),

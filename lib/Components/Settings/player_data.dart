@@ -32,4 +32,21 @@ class PlayerData extends ChangeNotifier with HiveObjectMixin {
     notifyListeners();
     save();
   }
+
+  int _scoreUntilHeal = 0;
+
+  int get scoreUntilHeal => _scoreUntilHeal;
+  set scoreUntilHeal(int value) {
+    _scoreUntilHeal = value;
+
+    if (_scoreUntilHeal >= 10) {
+      _scoreUntilHeal = 0;
+      if(lives < 5) {
+        lives += 1;
+      }
+    }
+
+    notifyListeners();
+    save();
+  }
 }

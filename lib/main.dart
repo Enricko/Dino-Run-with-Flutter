@@ -1,5 +1,8 @@
+import 'dart:html';
 import 'dart:io';
 
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flame/game.dart';
 import 'package:flame/input.dart';
 import 'package:flutter/foundation.dart';
@@ -13,6 +16,7 @@ import 'package:flutter_game_firebase/Components/UI/Hud.dart';
 import 'package:flutter_game_firebase/Components/UI/MainMenu.dart';
 import 'package:flutter_game_firebase/Components/UI/PauseMenu.dart';
 import 'package:flutter_game_firebase/Components/UI/SettingsMenu.dart';
+import 'package:flutter_game_firebase/firebase_options.dart';
 import 'package:hive/hive.dart';
 import 'package:flutter/material.dart';
 import 'package:flame/components.dart';
@@ -21,7 +25,18 @@ import 'package:flutter_game_firebase/Components/Parallax.dart';
 import 'Components/Character.dart';
 
 Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await initHive();
+  // User? user;
+  //     FirebaseAuth auth = FirebaseAuth.instance;
+  //     // The `GoogleAuthProvider` can only be 
+  //     // used while running on the web
+  //     GoogleAuthProvider authProvider = GoogleAuthProvider();
+  // // final UserCredential userCredential =
+  // //       await auth.signInwi(authProvider);
+  // //       user = userCredential.user;
+  // print(auth.currentUser);
   runApp(
     GameWidget(
       game: MyGame(),
@@ -77,7 +92,7 @@ Future<void> initHive() async {
   Hive.registerAdapter<PlayerData>(PlayerDataAdapter()); 
   Hive.registerAdapter<Settings>(SettingsAdapter());
 }
-  class MyGame extends FlameGame with TapDetector,KeyboardEvents, HasCollisionDetection {
+class MyGame extends FlameGame with TapDetector,KeyboardEvents, HasCollisionDetection,WidgetsBindingObserver {
   // List of all the image assets.
   static const _imageAssets = [
     'char/DinoSprites - vita.png',
@@ -116,14 +131,13 @@ Future<void> initHive() async {
 
     // Start playing background music. Internally takes care
     // of checking user settings.
-    AudioManager.instance.startBgm('8BitPlatformerLoop.wav');
 
     // Cache all the images.
     await images.loadAll(_imageAssets);
 
     // Set a fixed viewport to avoid manually scaling
     // and handling different screen sizes.
-    // camera.viewport = FixedResolutionViewport(Vector2(360, 180));
+    // camera.viewport = FixedResolutionViewport(Vector2(870, 661));
 
     /// Create a [ParallaxComponent] and add it to game.
     add(MyParallaxComponent());
@@ -137,6 +151,8 @@ Future<void> initHive() async {
   void startGamePlay() {
     _char = Char(images.fromCache('char/DinoSprites - vita.png'), playerData);
     _enemyManager = EnemyManager();
+
+    AudioManager.instance.startBgm('8BitPlatformerLoop.wav');
 
     add(_char);
     add(_enemyManager);
@@ -155,6 +171,7 @@ Future<void> initHive() async {
     _disconnectActors();
 
     // Reset player data to inital values.
+    playerData.scoreUntilHeal = 0;
     playerData.currentScore = 0;
     playerData.lives = 5;
   }
@@ -162,6 +179,13 @@ Future<void> initHive() async {
   // This method gets called for each tick/frame of the game.
   @override
   void update(double dt) {
+    // dbRef = FirebaseDatabase.instance.ref().child('medias');
+    if (kIsWeb) {
+      window.addEventListener('focus', onFocus);
+      window.addEventListener('blur', onBlur);
+    } else {
+      WidgetsBinding.instance.addObserver(this);
+    }
     // If number of lives is 0 or less, game is over.
     if (playerData.lives <= 0) {
       // print('object');
@@ -171,6 +195,14 @@ Future<void> initHive() async {
       AudioManager.instance.pauseBgm();
     }
     super.update(dt);
+  }
+
+  void onFocus(Event e) {
+    lifecycleStateChange(AppLifecycleState.resumed);
+  }
+
+  void onBlur(Event e) {
+    lifecycleStateChange(AppLifecycleState.paused);
   }
 
   // This will get called for each tap on the screen.
@@ -262,35 +294,3 @@ Future<void> initHive() async {
   }
 }
 
-
-//   @override
-//   Future<void> onTapDown(TapDownInfo info) async {
-//     if (_char.isOnGround) {
-//       _char.jump();
-//     }
-
-//     super.onTapDown(info);
-//   }
-//   @override
-//   
-  
-//   void jump(){
-//     speedY = -600;
-//   }
-
-//   void _disconnectActors() {
-//     _char.removeFromParent();
-//     _enemyManager.removeAllEnemies();
-//     _enemyManager.removeFromParent();
-//   }
-
-//   void reset() {
-//     // First disconnect all actions from game world.
-//     _disconnectActors();
-
-//     // Reset player data to inital values.
-//     playerData.currentScore = 0;
-//     playerData.lives = 5;
-//   }
-
-// }
