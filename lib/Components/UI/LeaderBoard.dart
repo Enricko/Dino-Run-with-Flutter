@@ -132,10 +132,12 @@ class LeaderBoard extends StatelessWidget {
                                   //   ),
                                   // ),
                                   Container(
+                                    alignment: Alignment.center,
                                     decoration: BoxDecoration(
                                       border: Border.all(color: Colors.white)
                                     ),
                                     width: MediaQuery.of(context).size.width * 0.47,
+                                    height: 50,
                                     child: Text(
                                       'Name',
                                       textAlign: TextAlign.center,
@@ -148,10 +150,12 @@ class LeaderBoard extends StatelessWidget {
                                     ),
                                   ),
                                   Container(
+                                    alignment: Alignment.center,
                                     decoration: BoxDecoration(
                                       border: Border.all(color: Colors.white)
                                     ),
                                     width: MediaQuery.of(context).size.width * 0.23,
+                                    height: 50,
                                     child: Text(
                                       'HighScore',
                                       textAlign: TextAlign.center,
@@ -192,10 +196,12 @@ class LeaderBoard extends StatelessWidget {
                                     //   ),
                                     // ),
                                     Container(
+                                      alignment: Alignment.center,
                                       decoration: BoxDecoration(
                                         border: Border.all(color: Colors.white)
                                       ),
                                       width: MediaQuery.of(context).size.width * 0.47,
+                                      height: 50,
                                       child: Text(
                                         '${lead['name']}',
                                         textAlign: TextAlign.center,
@@ -208,10 +214,12 @@ class LeaderBoard extends StatelessWidget {
                                       ),
                                     ),
                                     Container(
+                                      alignment: Alignment.center,
                                       decoration: BoxDecoration(
                                         border: Border.all(color: Colors.white)
                                       ),
                                       width: MediaQuery.of(context).size.width * 0.23,
+                                      height: 50,
                                       child: Text(
                                         '${lead['highScore']}',
                                         textAlign: TextAlign.center,

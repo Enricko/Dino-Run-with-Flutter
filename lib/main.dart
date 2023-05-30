@@ -134,7 +134,7 @@ class MyGame extends FlameGame with TapDetector,KeyboardEvents, HasCollisionDete
 
   /// This method add the already created [Dino]
   /// and [EnemyManager] to this game.
-  void startGamePlay() {
+  Future<void> startGamePlay() async {
 
     _char = Char(images.fromCache('char/DinoSprites - vita.png'), playerData);
     _enemyManager = EnemyManager();
@@ -143,6 +143,18 @@ class MyGame extends FlameGame with TapDetector,KeyboardEvents, HasCollisionDete
 
     add(_char);
     add(_enemyManager);
+    if (FirebaseAuth.instance.currentUser != null) {
+      
+      final snapshot = await FirebaseDatabase.instance
+      .ref()
+      .child('LeaderBoard')
+      .child(FirebaseAuth.instance.currentUser!.uid)
+      .get();
+      final Map<String,dynamic> data = snapshot.value as Map<String,dynamic>; 
+      
+      playerData.highScore = data['highScore'];
+    }
+    
   }
 
   // This method remove all the actors from the game.
@@ -153,7 +165,7 @@ class MyGame extends FlameGame with TapDetector,KeyboardEvents, HasCollisionDete
   }
 
   // This method reset the whole game world to initial state.
-  void reset() {
+  Future<void> reset() async {
     // First disconnect all actions from game world.
     _disconnectActors();
 
@@ -161,12 +173,22 @@ class MyGame extends FlameGame with TapDetector,KeyboardEvents, HasCollisionDete
     playerData.scoreUntilHeal = 0;
     playerData.currentScore = 0;
     playerData.lives = 5;
+    if (FirebaseAuth.instance.currentUser != null) {
+      
+      final snapshot = await FirebaseDatabase.instance
+      .ref()
+      .child('LeaderBoard')
+      .child(FirebaseAuth.instance.currentUser!.uid)
+      .get();
+      final Map<String,dynamic> data = snapshot.value as Map<String,dynamic>; 
+      
+      playerData.highScore = data['highScore'];
+    }
   }
 
   // This method gets called for each tick/frame of the game.
   @override
   Future<void> update(double dt) async {
-    // dbRef = FirebaseDatabase.instance.ref().child('medias');
     if (kIsWeb) {
       window.addEventListener('focus', onFocus);
       window.addEventListener('blur', onBlur);

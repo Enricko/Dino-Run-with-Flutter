@@ -140,15 +140,18 @@ class _MainMenuState extends State<MainMenu> {
                               child: GestureDetector(
                                 onTap: ()async{
                                   await FirebaseAuthService().signInWithGoogle();
-
-                                  final snapshot = await FirebaseDatabase.instance
-                                  .ref()
-                                  .child('LeaderBoard')
-                                  .child(FirebaseAuth.instance.currentUser!.uid)
-                                  .get();
-                                  final Map<String,dynamic> data = snapshot.value as Map<String,dynamic>; 
                                   
-                                  widget.gameRef.playerData.highScore = data['highScore'];
+                                  if (FirebaseAuth.instance.currentUser != null) {
+      
+                                    final snapshot = await FirebaseDatabase.instance
+                                    .ref()
+                                    .child('LeaderBoard')
+                                    .child(FirebaseAuth.instance.currentUser!.uid)
+                                    .get();
+                                    final Map<String,dynamic> data = snapshot.value as Map<String,dynamic>; 
+                                    
+                                    widget.gameRef.playerData.highScore = data['highScore'];
+                                  }
 
                                   widget.gameRef.overlays.remove(MainMenu.id);
                                   widget.gameRef.overlays.add(MainMenu.id);
